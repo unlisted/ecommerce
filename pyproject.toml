@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "ecommerce"
+version = "0.1.0"
+description = "ecommerce"
+authors = ["Morgan Baron <morgan@unlisted.org>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sqlalchemy = "^2.0.25"
+psycopg2-binary = "^2.9.9"
+sqlalchemy-utils = "^0.41.1"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.7.1"
+pytest = "^7.4.3"
+python-dotenv = {extras = ["cli"], version = "^1.0.0"}
+ruff = "^0.1.13"
+
+[tool.ruff]
+target-version = "py312"
+
