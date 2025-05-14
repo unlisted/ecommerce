@@ -30,11 +30,13 @@ def create_db(engine):
 
 
 @pytest.fixture(autouse=True)
-def create_tables(engine):
+def create_tables(create_db, engine):
     Base.metadata.create_all(engine)
+    yield
+    Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(autouse=True)
-def db_session(engine):
+def db_session(create_tables, engine):
     yield Session(engine)
 

@@ -42,7 +42,7 @@ def update_available(db_session: Session, item_id: str, quantity: int) -> int:
     Returns:
         int: The available quantity of the item.
     """
-    item = db_session.get(Item, id_str_to_uuid(item_id))
+    item = db_session.get(Item, item_id)
     if item is None:
         raise ValueError("Item not found")
 

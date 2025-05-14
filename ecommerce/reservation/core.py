@@ -4,15 +4,17 @@ from ecommerce.inventory.models import Item
 from ecommerce.common.utils import id_str_to_uuid
 from ecommerce.common.global_sched import Schedular
 from ecommerce.common.db import Session
+from ecommerce.member.models import Account
 
 
-def create_reservation(db_session: OrmSession, item_id: str) -> str:
+def create_reservation(db_session: OrmSession, account_id: str, item_id: str) -> str:
     """Creates a new reservation for an item. A simple scheduled event is also created as a side-efffect.
     The event triggers 15 minutes in the future and attempts the delete the reservation. If the reservation
     has already been completed or canceled then the event does nothing.
 
     Args:
         db_session (OrmSession): The database session.
+        account_id (str): The account id.
         item_id (str): The item id.
 
     Returns:
@@ -22,13 +24,17 @@ def create_reservation(db_session: OrmSession, item_id: str) -> str:
     item = db_session.get(Item, item_id)
     if item is None:
         raise ValueError("Item not found")
+    
+    account = db_session.get(Account, account_id)
+    if account is None:
+        raise ValueError("Account not found")
 
     if item.item_stock.quantity_available == 0:
         raise ValueError("Item quantity == 0")
 
     item.item_stock.quantity_available -= 1
 
-    reservation = Reservation(item=item)
+    reservation = Reservation(account=account, item=item)
     db_session.add(reservation)
 
     db_session.commit()
@@ -46,7 +52,7 @@ def cancel_reservation(db_session: OrmSession, reservation_id: str) -> None:
         db_session (OrmSession): The database session.
         reservation_id (str): The reservation id.
     """
-    reservation = db_session.get(Reservation, id_str_to_uuid(reservation_id))
+    reservation = db_session.get(Reservation, reservation_id)
     if reservation is None:
         raise ValueError("Reservation not found")
 
@@ -57,7 +63,7 @@ def cancel_reservation(db_session: OrmSession, reservation_id: str) -> None:
 
 def timeout_reservation(reserversaion_id: str) -> None:
     with Session() as db_session:
-        reservation = db_session.get(Reservation, id_str_to_uuid(reserversaion_id))
+        reservation = db_session.get(Reservation, reserversaion_id)
         if reservation is None:
             raise ValueError("Reservation not found")
         if reservation.status != ReservationStatus.ACTIVE:
@@ -76,7 +82,7 @@ def complete_reservation(db_session: OrmSession, reservation_id: str) -> None:
     Raises:
         ValueError:
     """
-    reservation = db_session.get(Reservation, id_str_to_uuid(reservation_id))
+    reservation = db_session.get(Reservation, reservation_id)
     if reservation is None:
         raise ValueError("Reservation not found")
 

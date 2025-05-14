@@ -1,10 +1,8 @@
-import pytest
 from sqlalchemy import select
 
 from ecommerce.inventory.core import create_new_item, update_available
 from ecommerce.inventory.models import Item, ItemStock
 from ecommerce.common.utils import id_str_to_uuid
-
 
 
 
@@ -22,7 +20,7 @@ def test_create_item(db_session):
 def test_update_available(db_session):
     item_id = create_new_item(db_session, "123", "test", 1000)
 
-    assert db_session.get(Item, id_str_to_uuid(item_id)).id.hex == item_id
+    assert db_session.get(Item, item_id).id.hex == item_id
     assert db_session.execute(select(ItemStock)).scalars().all()[0].quantity_available == 0
     
     update_available(db_session, item_id, 10)
